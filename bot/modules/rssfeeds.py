@@ -27,7 +27,7 @@ def cmd_rss_list(update, context):
     if bool(rss_dict):
         list_feed = ""
         for title, url_list in rss_dict.items():
-            list_feed +=f"Title: {title}\nFeed: {url_list[0]}\n\n"
+            list_feed +=f"Feed: {url_list[0]}\n\n"
         update.effective_message.reply_text(f"<b>Your subscriptions:</b>\n\n" + list_feed, parse_mode='HTMl')
     else:
         update.effective_message.reply_text("No subscriptions.")
@@ -43,7 +43,7 @@ def cmd_get(update, context):
                 msg = update.effective_message.reply_text(f"Getting the last <b>{count}</b> item(s), please wait!", parse_mode='HTMl')
                 rss_d = feedparser.parse(feed_url[0])
                 for item_num in range(count):
-                    item_info +=f"<b>{rss_d.entries[item_num]['title']}</b>\n{rss_d.entries[item_num]['link']}\n\n"
+                    item_info += f"{rss_d.entries[item_num]['link']}\n\n"
                 msg.edit_text(item_info, parse_mode='HTMl')
             except (IndexError, BadRequest):
                 msg.edit_text("Parse depth exceeded. Try again with a lower value.")
@@ -60,7 +60,7 @@ def cmd_rss_sub(update, context):
             # try if the url is a valid RSS feed
             rss_d = feedparser.parse(context.args[1])
             rss_d.entries[0]['title']
-            title_rss =  f"<b>{rss_d.feed.title}</b> latest record:\n<b>{rss_d.entries[0]['title']}</b>\n{rss_d.entries[0]['link']}"
+            title_rss =  f"<b>{rss_d.feed.title}</b> latest record:\n{rss_d.entries[0]['link']}"
             postgres.write(context.args[0], context.args[1], str(rss_d.entries[0]['link']), str(rss_d.entries[0]['title']))
             sub_feed = f"<b>Subscribed!</b>\nTitle: {context.args[0]}\nFeed: {context.args[1]}"
             update.effective_message.reply_text(sub_feed, parse_mode='HTMl')
@@ -113,7 +113,7 @@ def rss_monitor(context):
                     feed_urls.insert(0, rss_d.entries[feed_count]['link'])
                     feed_count += 1
                 for x in range(len(feed_urls)):
-                    feed_info = f"{CUSTOM_MESSAGES}\n<b>{feed_titles[x]}</b>\n{feed_urls[x]}"
+                    feed_info = f"{CUSTOM_MESSAGES}\n{feed_urls[x]}"
                     if rss_session is None:
                         context.bot.send_message(CHAT_ID, feed_info, parse_mode='HTMl')
                     else:
